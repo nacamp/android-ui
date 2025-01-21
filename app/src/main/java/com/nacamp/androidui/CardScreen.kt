@@ -2,6 +2,7 @@ package com.nacamp.androidui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
@@ -17,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.nacamp.androidui.kbank.withAlpha
 import com.nacamp.androidui.ui.theme.AndroidUITheme
 
 
@@ -33,9 +35,9 @@ fun StyledCard(
     elevation: CardElevation = CardDefaults.cardElevation(), // 기본 elevation 설정
     content: @Composable (TextStyle) -> Unit
 ) {
-    ProvideTextStyle(value = textStyle) {
+    ProvideTextStyle(value = textStyle.copy(color = colors.contentColor)) {
         Card(
-            modifier = modifier,
+            modifier = modifier.wrapContentHeight(),
             colors = colors,
             shape = shape,
             elevation = elevation
@@ -85,10 +87,22 @@ fun CardScreen(modifier: Modifier = Modifier) {
             )
         }
 
-        StyledCard(modifier = Modifier.padding(16.dp),){
+        StyledCard(modifier = Modifier.padding(16.dp), colors = CardDefaults.cardColors(
+            //containerColor = Color.White,
+            containerColor = Color.Blue,
+            contentColor = Color.White
+        )){
             Text(
                 text = "StyledCard!",
                 modifier = modifier.padding(16.dp)
+            )
+            Text(
+                text = "StyledCard!",
+                color = it.color.copy(alpha = 0.8f),
+            )
+            Text(
+                text = "StyledCard!",
+                style = it.withAlpha(0.5f),
             )
         }
     }
