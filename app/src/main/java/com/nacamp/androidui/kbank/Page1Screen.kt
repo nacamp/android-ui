@@ -131,7 +131,7 @@ fun BankCardBCLayout(modifier: Modifier = Modifier, initialIsExpanded: Boolean =
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(300.dp)
+            .height(400.dp)
     ) {
         BankCardB(
             modifier = modifier
