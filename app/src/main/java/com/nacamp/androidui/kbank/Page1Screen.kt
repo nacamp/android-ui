@@ -3,7 +3,6 @@ package com.nacamp.androidui.kbank
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +10,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -20,34 +21,35 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.Typography
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.nacamp.androidui.R
 import com.nacamp.androidui.StyledCard
-import com.nacamp.androidui.ui.theme.Typography
 
 
 private val KbankLightColorScheme = lightColorScheme(
@@ -71,22 +73,6 @@ private val KbankLightColorScheme = lightColorScheme(
 
 
 val KBankTypography = Typography()
-
-
-object Paddings {
-    val spacingXxs = 4.dp
-    val spacingXs = 8.dp
-    val spacingSm = 12.dp
-    val spacing = 16.dp
-    val spacingLg = 20.dp
-    val spacingXl = 24.dp
-    val spacing2xl = 32.dp
-    val spacing3xl = 40.dp
-    val spacing4xl = 60.dp
-    val spacing5xl = 80.dp
-
-    val titleBarHeight = 56.dp
-}
 
 object Spacing {
     val tiny = 4.dp
@@ -112,11 +98,11 @@ object KBankCardColors {
         contentColor = MaterialTheme.colorScheme.onSurface
     )
 
-//    @Composable
-//    fun Primary() = CardDefaults.cardColors(
-//        containerColor = MaterialTheme.colorScheme.primary,
-//        contentColor = MaterialTheme.colorScheme.onPrimary
-//    )
+    @Composable
+    fun primary() = CardDefaults.cardColors(
+        containerColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary
+    )
 }
 
 
@@ -135,29 +121,55 @@ fun KBankUITheme(
 fun Page1Screen(modifier: Modifier = Modifier) {
     Column {
         BankCardA(modifier = modifier.padding(Spacing.default), colors = KBankCardColors.default())
+        BankCardBCLayout(modifier = modifier.padding(0.dp))
+    }
+}
+
+@Composable
+fun BankCardBCLayout(modifier: Modifier = Modifier, initialIsExpanded: Boolean = true) {
+    var isExpanded by remember { mutableStateOf(initialIsExpanded) }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp)
+    ) {
+        BankCardB(
+            modifier = modifier
+                .padding(Spacing.default)
+                .align(Alignment.TopStart),
+            colors = KBankCardColors.primary(),
+            onToggleExpand = { isExpanded = !isExpanded }, // 상태 변경
+            isExpanded = isExpanded
+        )
         BankCardC(
-            modifier = modifier.padding(Spacing.default),
+            modifier = modifier
+                .padding(Spacing.default)
+                .fillMaxWidth()
+                .align(Alignment.TopCenter)
+                .offset { IntOffset(0, if (isExpanded) 50.dp.roundToPx() else 150.dp.roundToPx()) },
+            //.offset(y = if (isExpanded) 50.dp else 150.dp),
             colors = KBankCardColors.default()
         )
     }
 }
 
+
 @Composable
-fun BankCardA(modifier: Modifier = Modifier, colors: CardColors) {
+fun BankCardA(modifier: Modifier = Modifier, colors: CardColors= KBankCardColors.default()) {
     StyledCard(modifier = modifier, colors = colors) {
-        Row{
+        Row {
             Icon(
-                painter = painterResource(id = R.drawable.bank), // Vector Drawable 리소스 ID
+                painter = painterResource(id = R.drawable.ic_bank),
                 contentDescription = "Bank Icon",
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = modifier
-                    .padding(5.dp)
+                modifier = Modifier
+                    .padding(Spacing.default)
                     .size(30.dp)
                     .align(Alignment.CenterVertically)
             )
 
             Column(
-                modifier = modifier
+                modifier = Modifier.padding(Spacing.default)
                     .weight(3f) // 나머지 공간(2배)을 Column에 할당
             ) {
                 Text(
@@ -181,8 +193,8 @@ fun BankCardA(modifier: Modifier = Modifier, colors: CardColors) {
             Icon(
                 imageVector = Icons.Default.Close, // Material Design X 아이콘
                 contentDescription = "Close Button",
-                modifier = modifier
-                    .padding(Spacing.tiny)
+                modifier = Modifier
+                    .padding(Spacing.default)
                     .size(20.dp) // 아이콘 크기
                     .clickable { }, // 클릭 동작
                 tint = it.color.copy(alpha = 0.5f)
@@ -192,7 +204,74 @@ fun BankCardA(modifier: Modifier = Modifier, colors: CardColors) {
 }
 
 @Composable
-fun BankCardC(modifier: Modifier = Modifier, colors: CardColors) {
+fun BankCardB(
+    modifier: Modifier = Modifier, colors: CardColors, onToggleExpand: () -> Unit,
+    isExpanded: Boolean
+) {
+    StyledCard(modifier = modifier, colors = colors) {
+        Column {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Kbank",
+                    modifier = Modifier
+                        .padding(Spacing.default)
+                        .weight(1f),
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        color = it.color.copy(alpha = 0.7f),
+                        fontWeight = FontWeight.Bold,
+                    )
+                )
+
+                Box(
+                    modifier = Modifier
+                        .width(30.dp)
+                        .height(20.dp)
+                        .clip(RoundedCornerShape(5.dp))
+                        .background(
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
+                                .compositeOver(MaterialTheme.colorScheme.onSurface)
+                        )
+                        .clickable { onToggleExpand() }
+                ) {
+                    Icon(
+                        painter = painterResource(
+                            id = if (isExpanded) R.drawable.ic_arrow_down else R.drawable.ic_arrow_up
+                        ),
+                        contentDescription = "Bank Icon",
+                        tint = it.color.copy(alpha = 0.5f),
+                        modifier = Modifier
+                            .padding(0.dp)
+                            .size(24.dp)
+                            .align(Alignment.Center)
+                    )
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+            }
+            Row(
+                modifier = Modifier
+                    .padding(
+                        start = Spacing.default,
+                        top = Spacing.tiny,
+                        bottom = Spacing.extraLarge
+                    )
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                CircleIcon()
+                CircleIcon()
+                CircleIcon()
+                CircleIcon()
+            }
+            //Spacer(modifier = Modifier.padding(Spacing.extraLarge))
+        }
+    }
+}
+
+@Composable
+fun BankCardC(modifier: Modifier = Modifier, colors: CardColors= KBankCardColors.default()) {
     StyledCard(modifier = modifier, colors = colors) {
         Column {
             Column(modifier = Modifier.padding(Spacing.default)) {
@@ -202,7 +281,7 @@ fun BankCardC(modifier: Modifier = Modifier, colors: CardColors) {
                         style = it.withAlpha(0.5f),
                     )
                     Icon(
-                        painter = painterResource(id = R.drawable.bank), // Vector Drawable 리소스 ID
+                        painter = painterResource(id = R.drawable.ic_bank), // Vector Drawable 리소스 ID
                         contentDescription = "Bank Icon",
                         tint = it.color.copy(alpha = 0.5f),
                         modifier = Modifier
@@ -250,7 +329,7 @@ fun BankCardC(modifier: Modifier = Modifier, colors: CardColors) {
                         .padding(horizontal = Spacing.default),
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.bank), // Vector Drawable 리소스 ID
+                        painter = painterResource(id = R.drawable.ic_bank), // Vector Drawable 리소스 ID
                         contentDescription = "Bank Icon",
                         tint = Color(0xFF4560F4),
                         modifier = Modifier
@@ -259,7 +338,7 @@ fun BankCardC(modifier: Modifier = Modifier, colors: CardColors) {
                             .align(Alignment.CenterVertically)
                     )
                     Column(
-                        modifier =modifier
+                        modifier = Modifier.padding(Spacing.default)
                     ) {
                         Row {
                             Text(
@@ -313,7 +392,6 @@ fun IndicatorRow(selectedIndex: Int, total: Int = 10) {
 }
 
 
-
 @Composable
 fun DefaultButton(text: String, modifier: Modifier = Modifier) {
     Button(
@@ -346,15 +424,72 @@ fun LabelChip(text: String, modifier: Modifier = Modifier) {
     )
 }
 
+@Composable
+fun CircleIcon() {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .size(40.dp) // 원의 크기
+                .clip(RoundedCornerShape(16.dp))
+//            .clip(CircleShape)
+                .background(
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
+                        .compositeOver(MaterialTheme.colorScheme.onPrimary)
+                )
+                .padding(5.dp) // 아이콘 내부 패딩
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_bank), // Vector Drawable 리소스 ID
+                contentDescription = "Bank Icon",
+                //tint = MaterialTheme.colorScheme.primary, // 아이콘 색상
+                modifier = Modifier
+                    .padding(5.dp)
+                    .size(30.dp) // 아이콘 크기
+                    .align(Alignment.Center) // 아이콘을 중앙 정렬
+            )
+        }
+        Text("상품가입")
+    }
+
+}
+
 @Preview(showBackground = true)
 @Composable
-fun Case1ScreenPreview() {
+fun Page1ScreenPreview() {
     KBankUITheme() {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
             Page1Screen()
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BankCardCPreview() {
+    KBankUITheme() {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            BankCardC(modifier = Modifier.padding(Spacing.default))
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BankCardAPreview() {
+    KBankUITheme() {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            BankCardA(modifier = Modifier.padding(Spacing.default))
         }
     }
 }
