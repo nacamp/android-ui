@@ -1,5 +1,10 @@
 package com.nacamp.androidui.kbank
 
+import android.annotation.SuppressLint
+import androidx.compose.animation.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -38,6 +43,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.Typography
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,6 +59,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.nacamp.androidui.R
@@ -135,6 +143,7 @@ fun Page1Screen(modifier: Modifier = Modifier) {
     ) {
         BankCardA(colors = KBankCardColors.default())
         BankCardBCLayout()
+        BankCardD(modifier = modifier.padding(Spacing.default))
         BankCardE(colors = KBankCardColors.default())
     }
 }
@@ -392,6 +401,32 @@ fun BankCardC(modifier: Modifier = Modifier, colors: CardColors = KBankCardColor
 }
 
 @Composable
+fun BankCardD(modifier: Modifier = Modifier, colors: CardColors= KBankCardColors.default()) {
+    StyledCard(modifier = modifier, colors = colors) {
+        Row(
+            //verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier.padding(Spacing.default)
+                    .weight(13f) // 나머지 공간(2배)을 Column에 할당
+            ) {
+                Text(
+                    text = "플러스박스에 모인 이자",
+                    style = it.withAlpha(0.5f),
+                )
+                Text(
+                    text = "300원",
+                    style = it.withBold()
+                )
+            }
+
+            ShakingIconWithAnimatable(modifier = Modifier.offset(y = (10).dp) )
+            Spacer(modifier = Modifier.padding(Spacing.extraLarge))
+        }
+    }
+}
+
+@Composable
 fun BankCardE(modifier: Modifier = Modifier, colors: CardColors = KBankCardColors.default()) {
     StyledCard(modifier = modifier, colors = colors) {
         Column {
@@ -571,6 +606,36 @@ fun BankCardERow(
     }
 }
 
+
+@Composable
+fun ShakingIconWithAnimatable(modifier: Modifier) {
+    val offsetY = remember { androidx.compose.animation.core.Animatable(0.dp, Dp.VectorConverter) }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            // 위아래로 5.dp 흔들리도록 애니메이션 설정
+            offsetY.animateTo(
+                targetValue = 5.dp,
+                animationSpec = tween(durationMillis = 600, easing = LinearEasing)
+            )
+            offsetY.animateTo(
+                targetValue = 0.dp,
+                animationSpec = tween(durationMillis = 600, easing = LinearEasing)
+            )
+        }
+    }
+
+    Icon(
+        painter = painterResource(id = R.drawable.ic_bank), // Vector Drawable 리소스 ID
+        contentDescription = "Bank Icon",
+        tint = Color(0xFF4560F4),
+        modifier = modifier
+            .padding(top = offsetY.value)
+            .size(20.dp)
+        //.align(Alignment.CenterVertically)
+    )
+}
+
 @Composable
 fun IndicatorRow(selectedIndex: Int, total: Int = 10) {
     Row(
@@ -742,6 +807,19 @@ fun BankCardEPreview() {
     }
 }
 
+
+@Preview(showBackground = true)
+@Composable
+fun BankCardDPreview() {
+    KBankUITheme() {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            BankCardD(modifier = Modifier.padding(Spacing.default))
+        }
+    }
+}
 
 @Preview(showBackground = true)
 @Composable
