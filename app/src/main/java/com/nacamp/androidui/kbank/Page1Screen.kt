@@ -1,11 +1,13 @@
 package com.nacamp.androidui.kbank
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,9 +17,12 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
@@ -27,6 +32,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.Typography
@@ -119,23 +125,43 @@ fun KBankUITheme(
 
 @Composable
 fun Page1Screen(modifier: Modifier = Modifier) {
-    Column {
-        BankCardA(modifier = modifier.padding(Spacing.default), colors = KBankCardColors.default())
-        BankCardBCLayout(modifier = modifier.padding(0.dp))
+    Column(
+        modifier = modifier
+            .padding(Spacing.default)
+            .fillMaxSize()
+            //.border(1.dp, Color.Red)
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(Spacing.default)
+    ) {
+        BankCardA(colors = KBankCardColors.default())
+        BankCardBCLayout()
+        BankCardE(colors = KBankCardColors.default())
     }
 }
 
 @Composable
-fun BankCardBCLayout(modifier: Modifier = Modifier, initialIsExpanded: Boolean = true) {
+fun BankCardBCLayout(modifier: Modifier = Modifier, initialIsExpanded: Boolean = false) {
     var isExpanded by remember { mutableStateOf(initialIsExpanded) }
+
+    val bankCardBHeight = 100.dp
+    val bankCardCExpandedHeight = 320.dp
+    val bankCardCCollapsedHeight = 220.dp
+
+    val boxHeight = if (isExpanded) {
+        bankCardBHeight + bankCardCExpandedHeight
+    } else {
+        bankCardBHeight + bankCardCCollapsedHeight
+    }
+
     Box(
         modifier = Modifier
+            //.border(1.dp, Color.Blue)
             .fillMaxWidth()
-            .height(400.dp)
+            .height(boxHeight)
     ) {
         BankCardB(
             modifier = modifier
-                .padding(Spacing.default)
+                //.padding(Spacing.default)
                 .align(Alignment.TopStart),
             colors = KBankCardColors.primary(),
             onToggleExpand = { isExpanded = !isExpanded }, // 상태 변경
@@ -143,10 +169,10 @@ fun BankCardBCLayout(modifier: Modifier = Modifier, initialIsExpanded: Boolean =
         )
         BankCardC(
             modifier = modifier
-                .padding(Spacing.default)
+                //.padding(Spacing.default)
                 .fillMaxWidth()
                 .align(Alignment.TopCenter)
-                .offset { IntOffset(0, if (isExpanded) 50.dp.roundToPx() else 150.dp.roundToPx()) },
+                .offset { IntOffset(0, if (isExpanded) 150.dp.roundToPx() else 50.dp.roundToPx()) },
             //.offset(y = if (isExpanded) 50.dp else 150.dp),
             colors = KBankCardColors.default()
         )
@@ -155,7 +181,7 @@ fun BankCardBCLayout(modifier: Modifier = Modifier, initialIsExpanded: Boolean =
 
 
 @Composable
-fun BankCardA(modifier: Modifier = Modifier, colors: CardColors= KBankCardColors.default()) {
+fun BankCardA(modifier: Modifier = Modifier, colors: CardColors = KBankCardColors.default()) {
     StyledCard(modifier = modifier, colors = colors) {
         Row {
             Icon(
@@ -169,7 +195,8 @@ fun BankCardA(modifier: Modifier = Modifier, colors: CardColors= KBankCardColors
             )
 
             Column(
-                modifier = Modifier.padding(Spacing.default)
+                modifier = Modifier
+                    .padding(Spacing.default)
                     .weight(3f) // 나머지 공간(2배)을 Column에 할당
             ) {
                 Text(
@@ -271,7 +298,7 @@ fun BankCardB(
 }
 
 @Composable
-fun BankCardC(modifier: Modifier = Modifier, colors: CardColors= KBankCardColors.default()) {
+fun BankCardC(modifier: Modifier = Modifier, colors: CardColors = KBankCardColors.default()) {
     StyledCard(modifier = modifier, colors = colors) {
         Column {
             Column(modifier = Modifier.padding(Spacing.default)) {
@@ -312,8 +339,8 @@ fun BankCardC(modifier: Modifier = Modifier, colors: CardColors= KBankCardColors
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(Spacing.default)
                 ) {
-                    DefaultButton("가져오기", modifier = Modifier.weight(1f))
-                    DefaultButton("이체하기", modifier = Modifier.weight(1f))
+                    CDefaultButton("가져오기", modifier = Modifier.weight(1f))
+                    CDefaultButton("이체하기", modifier = Modifier.weight(1f))
                 }
             }
 
@@ -365,6 +392,186 @@ fun BankCardC(modifier: Modifier = Modifier, colors: CardColors= KBankCardColors
 }
 
 @Composable
+fun BankCardE(modifier: Modifier = Modifier, colors: CardColors = KBankCardColors.default()) {
+    StyledCard(modifier = modifier, colors = colors) {
+        Column {
+            Column(modifier = Modifier.padding(Spacing.default)) {
+                Row {
+                    Text(
+                        text = "계좌",
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                        )
+                    )
+                }
+                BankCardERow(
+                    column1 = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_bank), // Vector Drawable 리소스 ID
+                            contentDescription = "Bank Icon",
+                            tint = Color(0xFF4560F4),
+                            modifier = Modifier
+                                .padding(5.dp)
+                                .size(30.dp)
+                        )
+                    },
+                    column2Text1 = "급할 때 쓸 여윳돈",
+                    column2Text2 = "0원",
+                    column3 = {
+                        COutlinedButton("더하기", modifier = modifier.padding(Spacing.tiny))
+                    })
+                BankCardERow(
+                    column1 = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_bank), // Vector Drawable 리소스 ID
+                            contentDescription = "Bank Icon",
+                            tint = Color(0xFF4560F4),
+                            modifier = Modifier
+                                .padding(5.dp)
+                                .size(30.dp)
+                        )
+                    },
+                    column2Text1 = "급할 때 쓸 여윳돈",
+                    column2Text2 = "0원",
+                    column3 = {
+                        COutlinedButton("더하기", modifier = Modifier)
+                    })
+                BankCardERow(
+                    column1 = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_bank), // Vector Drawable 리소스 ID
+                            contentDescription = "Bank Icon",
+                            tint = Color(0xFF4560F4),
+                            modifier = Modifier
+                                .padding(5.dp)
+                                .size(30.dp)
+                        )
+                    },
+                    column2Text1 = "코드K자유적금",
+                    column2Text2 = "9,600,000원",
+                )
+            }
+
+            HorizontalDivider(
+                thickness = 1.dp,
+                color = Color.LightGray
+            )
+            Column(modifier = Modifier.padding(Spacing.default)) {
+                Row {
+                    Text(
+                        text = "대출",
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                        )
+                    )
+                }
+                BankCardERow(
+                    column1 = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_bank), // Vector Drawable 리소스 ID
+                            contentDescription = "Bank Icon",
+                            tint = Color(0xFF4560F4),
+                            modifier = Modifier
+                                .padding(5.dp)
+                                .size(30.dp)
+                        )
+                    },
+                    column2Text1 = "마이너스 통장 대출",
+                    column2Text2 = "49,998,726원",
+                )
+            }
+
+            HorizontalDivider(
+                thickness = 1.dp,
+                color = Color.LightGray
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth() // Row를 가로로 꽉 채우기
+                    .padding(vertical = Spacing.default),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Spacer(modifier = Modifier.weight(1f))
+                Text(
+                    text = "전체보기",
+                    style = it.withAlpha(0.5f),
+                )
+                Icon(
+                    imageVector = Icons.Filled.ChevronRight, // ✅ 기본 chevron_right 아이콘
+                    contentDescription = "Chevron Right",
+                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                    modifier = Modifier.size(24.dp) // 크기 설정
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun BankCardERow(
+    modifier: Modifier = Modifier,    // Row의 Modifier
+    column1: @Composable () -> Unit, // column1의 컴포저블 콘텐츠
+    column2Text1: String,            // column2의 첫 번째 텍스트
+    column2Text2: String,            // column2의 두 번째 텍스트
+    column3: (@Composable () -> Unit)? = null, // column3의 컴포저블 콘텐츠 (nullable)
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = Spacing.tiny, vertical = Spacing.tiny),
+        verticalAlignment = Alignment.CenterVertically // Row 내에서 세로 중앙 정렬
+    ) {
+        Box(
+            modifier = Modifier
+                .padding(end = Spacing.default)
+                .weight(1f),
+            //.border(1.dp, Color.Red),
+            contentAlignment = Alignment.Center // Box 안에서 콘텐츠 중앙 정렬
+        ) {
+            column1() // column1의 컴포저블 호출
+        }
+
+        Column(
+            modifier = Modifier
+                .padding(end = Spacing.default)
+                .weight(3f) // Column 2는 넓게 설정
+        ) {
+            Text(
+                text = column2Text1,
+                style = MaterialTheme.typography.bodySmall.copy(
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f) // 흐림 효과
+                )
+            )
+            Text(
+                text = column2Text2,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            )
+        }
+
+        if (column3 != null) {
+            Box(
+                modifier = Modifier
+                    .padding(start = Spacing.default)
+                    .height(24.dp)
+                    .weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                column3()
+            }
+        } else {
+            Spacer(
+                modifier = Modifier
+                    .padding(start = Spacing.default)
+                    .weight(1f) // 동일한 공간 차지
+            )
+        }
+    }
+}
+
+@Composable
 fun IndicatorRow(selectedIndex: Int, total: Int = 10) {
     Row(
         modifier = Modifier
@@ -393,7 +600,32 @@ fun IndicatorRow(selectedIndex: Int, total: Int = 10) {
 
 
 @Composable
-fun DefaultButton(text: String, modifier: Modifier = Modifier) {
+fun COutlinedButton(text: String, modifier: Modifier = Modifier) {
+    OutlinedButton(
+        onClick = {},
+        shape = RoundedCornerShape(8.dp),
+        colors = ButtonDefaults.outlinedButtonColors(
+            containerColor = Color.Transparent, // 배경색을 투명하게 설정
+            contentColor = MaterialTheme.colorScheme.onSurface // 텍스트 색상
+        ),
+        border = BorderStroke(1.dp, Color.LightGray), // 아웃라인 색상 및 두께 설정
+        contentPadding = PaddingValues(0.dp), // 내부 여백 제거
+        modifier = Modifier.padding(0.dp)
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyMedium.copy( // 텍스트 스타일 조정
+//                color = MaterialTheme.colorScheme.primary,
+//                lineHeight = 16.sp, // 줄 간격 줄이기
+//                textAlign = TextAlign.Center // 텍스트 중앙 정렬
+            ),
+            modifier = Modifier.padding(0.dp)
+        )
+    }
+}
+
+@Composable
+fun CDefaultButton(text: String, modifier: Modifier = Modifier) {
     Button(
         onClick = {},
         shape = RoundedCornerShape(8.dp),
@@ -467,6 +699,49 @@ fun Page1ScreenPreview() {
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+fun BankCardERowPreview() {
+    KBankUITheme() {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            BankCardERow(
+                column1 = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_bank), // Vector Drawable 리소스 ID
+                        contentDescription = "Bank Icon",
+                        tint = Color(0xFF4560F4),
+                        modifier = Modifier
+                            .padding(5.dp)
+                            .size(20.dp)
+                    )
+                },
+                column2Text1 = "급할 때 쓸 여윳돈",
+                column2Text2 = "0원",
+                column3 = {
+                    COutlinedButton("더하기", modifier = Modifier.padding(Spacing.tiny))
+                })
+        }
+    }
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun BankCardEPreview() {
+    KBankUITheme() {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            BankCardE(modifier = Modifier.padding(Spacing.default))
+        }
+    }
+}
+
 
 @Preview(showBackground = true)
 @Composable
