@@ -143,7 +143,7 @@ fun Page1Screen(modifier: Modifier = Modifier) {
     ) {
         BankCardA(colors = KBankCardColors.default())
         BankCardBCLayout()
-        BankCardD(modifier = modifier.padding(Spacing.default))
+        BankCardD()
         BankCardE(colors = KBankCardColors.default())
     }
 }
@@ -404,11 +404,13 @@ fun BankCardC(modifier: Modifier = Modifier, colors: CardColors = KBankCardColor
 fun BankCardD(modifier: Modifier = Modifier, colors: CardColors= KBankCardColors.default()) {
     StyledCard(modifier = modifier, colors = colors) {
         Row(
-            //verticalAlignment = Alignment.CenterVertically
+//            modifier = Modifier.border(1.dp, Color.Red),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
-                modifier = Modifier.padding(Spacing.default)
-                    .weight(13f) // 나머지 공간(2배)을 Column에 할당
+                modifier = Modifier
+                    .padding(Spacing.default)
+                    .weight(13f)
             ) {
                 Text(
                     text = "플러스박스에 모인 이자",
@@ -419,9 +421,8 @@ fun BankCardD(modifier: Modifier = Modifier, colors: CardColors= KBankCardColors
                     style = it.withBold()
                 )
             }
-
-            ShakingIconWithAnimatable(modifier = Modifier.offset(y = (10).dp) )
-            Spacer(modifier = Modifier.padding(Spacing.extraLarge))
+            ShakingIconWithAnimation(modifier=modifier)
+            Spacer(modifier = Modifier.padding(Spacing.default))
         }
     }
 }
@@ -608,14 +609,12 @@ fun BankCardERow(
 
 
 @Composable
-fun ShakingIconWithAnimatable(modifier: Modifier) {
+fun ShakingIconWithAnimation(modifier: Modifier) {
     val offsetY = remember { androidx.compose.animation.core.Animatable(0.dp, Dp.VectorConverter) }
-
     LaunchedEffect(Unit) {
         while (true) {
-            // 위아래로 5.dp 흔들리도록 애니메이션 설정
             offsetY.animateTo(
-                targetValue = 5.dp,
+                targetValue = 20.dp,
                 animationSpec = tween(durationMillis = 600, easing = LinearEasing)
             )
             offsetY.animateTo(
@@ -630,9 +629,9 @@ fun ShakingIconWithAnimatable(modifier: Modifier) {
         contentDescription = "Bank Icon",
         tint = Color(0xFF4560F4),
         modifier = modifier
+            .padding(top = 0.dp)
             .padding(top = offsetY.value)
             .size(20.dp)
-        //.align(Alignment.CenterVertically)
     )
 }
 
@@ -765,7 +764,7 @@ fun Page1ScreenPreview() {
     }
 }
 
-@Preview(showBackground = true)
+//@Preview(showBackground = true)
 @Composable
 fun BankCardERowPreview() {
     KBankUITheme() {
@@ -794,7 +793,7 @@ fun BankCardERowPreview() {
 }
 
 
-@Preview(showBackground = true)
+//@Preview(showBackground = true)
 @Composable
 fun BankCardEPreview() {
     KBankUITheme() {
@@ -821,7 +820,7 @@ fun BankCardDPreview() {
     }
 }
 
-@Preview(showBackground = true)
+//@Preview(showBackground = true)
 @Composable
 fun BankCardCPreview() {
     KBankUITheme() {
@@ -834,7 +833,7 @@ fun BankCardCPreview() {
     }
 }
 
-@Preview(showBackground = true)
+//@Preview(showBackground = true)
 @Composable
 fun BankCardAPreview() {
     KBankUITheme() {
