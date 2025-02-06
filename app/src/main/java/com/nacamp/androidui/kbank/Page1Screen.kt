@@ -161,31 +161,36 @@ fun BankCardBCLayout(modifier: Modifier = Modifier, initialIsExpanded: Boolean =
     } else {
         bankCardBHeight + bankCardCCollapsedHeight
     }
-
-    Box(
-        modifier = Modifier
-            //.border(1.dp, Color.Blue)
-            .fillMaxWidth()
-            .height(boxHeight)
-    ) {
-        BankCardB(
-            modifier = modifier
-                //.padding(Spacing.default)
-                .align(Alignment.TopStart),
-            colors = KBankCardColors.primary(),
-            onToggleExpand = { isExpanded = !isExpanded }, // 상태 변경
-            isExpanded = isExpanded
-        )
-        BankCardC(
-            modifier = modifier
-                //.padding(Spacing.default)
+    Row {
+        Box(
+            modifier = Modifier
+                //.border(1.dp, Color.Blue)
                 .fillMaxWidth()
-                .align(Alignment.TopCenter)
-                .offset { IntOffset(0, if (isExpanded) 150.dp.roundToPx() else 50.dp.roundToPx()) },
-            //.offset(y = if (isExpanded) 50.dp else 150.dp),
-            colors = KBankCardColors.default()
-        )
+                .height(boxHeight)
+        ) {
+            BankCardB(
+                modifier = modifier
+                    .align(Alignment.TopStart),
+                colors = KBankCardColors.primary(),
+                onToggleExpand = { isExpanded = !isExpanded }, // 상태 변경
+                isExpanded = isExpanded
+            )
+            BankCardC(
+                modifier = modifier
+                    .fillMaxWidth()
+                    //.fillMaxSize() //=> StyledCard의 modifier.wrapContentHeight() 사용시 하단에 여백이 생김
+                    .align(Alignment.TopCenter)
+                    .offset {
+                        IntOffset(
+                            0,
+                            if (isExpanded) 150.dp.roundToPx() else 50.dp.roundToPx()
+                        )
+                    },
+                colors = KBankCardColors.default()
+            )
+        }
     }
+
 }
 
 
