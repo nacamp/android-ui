@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -44,10 +46,10 @@ import androidx.compose.material3.Typography
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -62,8 +64,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.nacamp.androidui.R
 import com.nacamp.androidui.StyledCard
+import kotlinx.coroutines.launch
 
 
 private val KbankLightColorScheme = lightColorScheme(
@@ -313,6 +317,82 @@ fun BankCardB(
 
 @Composable
 fun BankCardC(modifier: Modifier = Modifier, colors: CardColors = KBankCardColors.default()) {
+    val contentList: List<@Composable () -> Unit> = listOf(
+        {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth() // Row를 가로로 꽉 채우기
+                    .padding(horizontal = Spacing.default, vertical = 0.dp),
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_bank), // Vector Drawable 리소스 ID
+                    contentDescription = "Bank Icon",
+                    tint = Color(0xFF4560F4),
+                    modifier = Modifier
+                        .padding(5.dp)
+                        .size(30.dp)
+                        .align(Alignment.CenterVertically)
+                )
+                Column(
+                    modifier = Modifier.padding(Spacing.default)
+                ) {
+                    Row {
+                        Text(
+                            text = "홍길동",
+                        )
+                        Text(
+                            text = " | 1일전",
+                            //style = it.withAlpha(0.5f),
+                        )
+                    }
+                    Text(
+                        text = "+110,000원",
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                        ),
+                    )
+                }
+            }
+        },
+        {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth() // Row를 가로로 꽉 채우기
+                    .padding(horizontal = Spacing.default, vertical = 0.dp),
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_bank), // Vector Drawable 리소스 ID
+                    contentDescription = "Bank Icon",
+                    tint = Color(0xFF4560F4),
+                    modifier = Modifier
+                        .padding(5.dp)
+                        .size(30.dp)
+                        .align(Alignment.CenterVertically)
+                )
+                Column(
+                    modifier = Modifier.padding(Spacing.default)
+                ) {
+                    Row {
+                        Text(
+                            text = "홍길동",
+                        )
+                        Text(
+                            text = " | 2일전",
+                            //style = it.withAlpha(0.5f),
+                        )
+                    }
+                    Text(
+                        text = "+110,000원",
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                        ),
+                    )
+                }
+            }
+        },
+        { Text("Card 3", fontSize = 20.sp, fontWeight = FontWeight.Bold) },
+    )
+
     StyledCard(modifier = modifier, colors = colors) {
         Column {
             Column(modifier = Modifier.padding(Spacing.default)) {
@@ -362,51 +442,13 @@ fun BankCardC(modifier: Modifier = Modifier, colors: CardColors = KBankCardColor
                 thickness = 1.dp,
                 color = Color.LightGray
             )
-
-            Column {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth() // Row를 가로로 꽉 채우기
-                        .padding(horizontal = Spacing.default),
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_bank), // Vector Drawable 리소스 ID
-                        contentDescription = "Bank Icon",
-                        tint = Color(0xFF4560F4),
-                        modifier = Modifier
-                            .padding(5.dp)
-                            .size(30.dp)
-                            .align(Alignment.CenterVertically)
-                    )
-                    Column(
-                        modifier = Modifier.padding(Spacing.default)
-                    ) {
-                        Row {
-                            Text(
-                                text = "홍길동",
-                            )
-                            Text(
-                                text = " | 2일전",
-                                style = it.withAlpha(0.5f),
-                            )
-                        }
-                        Text(
-                            text = "+110,000원",
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                fontWeight = FontWeight.Bold,
-                            ),
-                        )
-                    }
-                }
-                IndicatorRow(0)
-            }
-
+            ScrollableCardPager(contentList)
         }
     }
 }
 
 @Composable
-fun BankCardD(modifier: Modifier = Modifier, colors: CardColors= KBankCardColors.default()) {
+fun BankCardD(modifier: Modifier = Modifier, colors: CardColors = KBankCardColors.default()) {
     StyledCard(modifier = modifier, colors = colors) {
         Row(
 //            modifier = Modifier.border(1.dp, Color.Red),
@@ -426,7 +468,7 @@ fun BankCardD(modifier: Modifier = Modifier, colors: CardColors= KBankCardColors
                     style = it.withBold()
                 )
             }
-            ShakingIconWithAnimation(modifier=modifier)
+            ShakingIconWithAnimation(modifier = modifier)
             Spacer(modifier = Modifier.padding(Spacing.default))
         }
     }
@@ -612,6 +654,84 @@ fun BankCardERow(
     }
 }
 
+// 주의: contents 들의 높이는 같아야 한다.
+@Composable
+fun ScrollableCardPager(
+    contents: List<@Composable () -> Unit> // ✅ 여러 개의 콘텐츠를 리스트로 전달받음
+) {
+    val pagerState = rememberPagerState { contents.size }
+    val coroutineScope = rememberCoroutineScope()
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            //.fillMaxSize() //=> StyledCard의 modifier.wrapContentHeight() 사용시 하단에 여백이 생김
+            //.border(1.dp, Color.Red)
+            .padding(0.dp),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxWidth(),
+            contentPadding = PaddingValues(0.dp),
+        ) { page ->
+            Box(
+                modifier = Modifier
+                    .padding(0.dp)
+                    //.border(1.dp, Color.Black, RoundedCornerShape(8.dp))
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                contents[page]() // ✅ 전달된 리스트에서 현재 페이지의 Composable 표시
+            }
+        }
+        IndicatorRow(
+            selectedIndex = pagerState.currentPage,
+            total = contents.size,
+            onIndicatorClick = { index ->
+                coroutineScope.launch {
+                    pagerState.animateScrollToPage(
+                        index,
+                        animationSpec = tween(durationMillis = 500)
+                    )
+                }
+            }
+        )
+    }
+}
+
+
+@Composable
+fun IndicatorRow(
+    selectedIndex: Int,
+    total: Int = 4,
+    onIndicatorClick: (Int) -> Unit // ✅ 클릭 이벤트 콜백 추가
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        repeat(total) { index ->
+            Box(
+                modifier = Modifier
+                    .size(12.dp)
+                    .clip(CircleShape)
+                    .clickable { onIndicatorClick(index) } // ✅ 클릭 시 인덱스 전달
+                    .then(
+                        if (index == selectedIndex) {
+                            Modifier.background(Color.DarkGray)
+                        } else {
+                            Modifier.border(2.dp, Color.LightGray, CircleShape)
+                        }
+                    )
+            )
+            Spacer(modifier = Modifier.width(4.dp)) // 원 간 간격
+        }
+    }
+}
 
 @Composable
 fun ShakingIconWithAnimation(modifier: Modifier) {
@@ -639,34 +759,6 @@ fun ShakingIconWithAnimation(modifier: Modifier) {
             .size(20.dp)
     )
 }
-
-@Composable
-fun IndicatorRow(selectedIndex: Int, total: Int = 10) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        repeat(total) { index ->
-            Box(
-                modifier = Modifier
-                    .size(12.dp)
-                    .clip(CircleShape)
-                    .then(
-                        if (index == selectedIndex) {
-                            Modifier.background(Color.DarkGray)
-                        } else {
-                            Modifier.border(2.dp, Color.LightGray, CircleShape)
-                        }
-                    )
-            )
-            Spacer(modifier = Modifier.width(4.dp)) // 원 간 간격
-        }
-    }
-}
-
 
 @Composable
 fun COutlinedButton(text: String, modifier: Modifier = Modifier) {
